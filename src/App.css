@@ -287,6 +287,23 @@
 .preview.big {
   max-height: 420px;
 }
+.pdfchip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #fdeaea;
+  color: var(--bad);
+  font-weight: 700;
+  border-radius: 10px;
+  padding: 10px 14px;
+  margin-bottom: 8px;
+}
+.pdfopen {
+  display: block;
+  text-align: center;
+  color: var(--bad);
+  margin: 10px 0;
+}
 
 /* detail */
 .detail h2 {

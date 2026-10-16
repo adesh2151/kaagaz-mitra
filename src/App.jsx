@@ -63,6 +63,19 @@ function fileToDataUrl(file, max = 1400, quality = 0.72) {
   })
 }
 
+// Read any file (e.g. a PDF) straight to a data-URL, no processing.
+function readAsDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const r = new FileReader()
+    r.onerror = reject
+    r.onload = () => resolve(r.result)
+    r.readAsDataURL(file)
+  })
+}
+
+const isPdf = (u) => typeof u === 'string' && u.startsWith('data:application/pdf')
+const MAX_FILE_MB = 12
+
 export default function App() {
   const [lang, setLang] = useState(() => lsGet(LS_LANG, 'mr'))
   const [unlocked, setUnlocked] = useState(() => !lsGet(LS_PIN, null))
@@ -352,13 +365,20 @@ function DocForm({ lang, members, initial, onCancel, onSaved, onReloadMembers })
   async function pickPhoto(e) {
     const file = e.target.files?.[0]
     if (!file) return
+    if (file.size > MAX_FILE_MB * 1024 * 1024) {
+      alert(`⚠️ ${MAX_FILE_MB} MB`)
+      e.target.value = ''
+      return
+    }
     setBusy(true)
     try {
-      setImage(await fileToDataUrl(file))
+      // PDFs are stored as-is; images are downscaled to keep storage small.
+      setImage(file.type === 'application/pdf' ? await readAsDataUrl(file) : await fileToDataUrl(file))
     } catch {
       /* ignore */
     }
     setBusy(false)
+    e.target.value = ''
   }
 
   async function addMemberPrompt() {
@@ -441,15 +461,19 @@ function DocForm({ lang, members, initial, onCancel, onSaved, onReloadMembers })
       <input type="date" value={expiryDate} onChange={(e) => setExpiryDate(e.target.value)} />
 
       <label>{t(UI.photo, lang)}</label>
-      {image && <img className="preview" src={image} alt="" />}
+      {image &&
+        (isPdf(image) ? (
+          <div className="pdfchip">📄 PDF</div>
+        ) : (
+          <img className="preview" src={image} alt="" />
+        ))}
       <button className="ghost wide" onClick={() => fileRef.current?.click()} disabled={busy}>
         📷 {t(UI.addPhoto, lang)}
       </button>
       <input
         ref={fileRef}
         type="file"
-        accept="image/*"
-        capture="environment"
+        accept="image/*,application/pdf"
         hidden
         onChange={pickPhoto}
       />
@@ -481,11 +505,16 @@ function Detail({ lang, doc, memberName, onBack, onEdit, onDelete }) {
         {memberName(doc.memberId) ? ` · ${memberName(doc.memberId)}` : ''}
       </p>
 
-      {doc.image && (
-        <a href={doc.image} target="_blank" rel="noreferrer">
-          <img className="preview big" src={doc.image} alt="" />
-        </a>
-      )}
+      {doc.image &&
+        (isPdf(doc.image) ? (
+          <a className="ghost wide pdfopen" href={doc.image} target="_blank" rel="noreferrer">
+            📄 PDF
+          </a>
+        ) : (
+          <a href={doc.image} target="_blank" rel="noreferrer">
+            <img className="preview big" src={doc.image} alt="" />
+          </a>
+        ))}
 
       <div className="fields">
         {doc.number && (
