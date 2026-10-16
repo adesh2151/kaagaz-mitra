@@ -1,0 +1,43 @@
+:root {
+  --blue: #1e66d0;
+  --blue-dark: #1550aa;
+  --ink: #16202e;
+  --muted: #5e6b7b;
+  --bg: #eef3fb;
+  --card: #ffffff;
+  --line: #dbe4f0;
+  --ok: #138808;
+  --ok-bg: #e8f7e6;
+  --warn: #e07b00;
+  --warn-bg: #fff3e0;
+  --bad: #d12b2b;
+  --bad-bg: #fdeaea;
+  font-family: system-ui, "Noto Sans", "Noto Sans Devanagari", Arial, sans-serif;
+}
+* {
+  box-sizing: border-box;
+}
+html,
+body,
+#root {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+}
+body {
+  background: var(--bg);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+}
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+input,
+textarea,
+select {
+  font-family: inherit;
+}
+a {
+  text-decoration: none;
+}
